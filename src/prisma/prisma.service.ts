@@ -7,7 +7,6 @@ import 'dotenv/config';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
-    // 1. Cria a conexão direta usando a URL do seu .env
     const connectionString = process.env.DATABASE_URL;
 
     if (!connectionString) {
@@ -16,10 +15,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     const pool = new Pool({ connectionString });
 
-    // 2. Cria o adaptador
     const adapter = new PrismaPg(pool);
 
-    // 3. Passa o adaptador e os logs exigidos pelo Prisma 7
     super({
       adapter,
       log: ['query'],
