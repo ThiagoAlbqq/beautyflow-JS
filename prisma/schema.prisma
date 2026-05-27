@@ -4,10 +4,140 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model Produto {
+  id_produto         Int     @id @default(autoincrement())
+  nome               String  @db.VarChar(150)
+  categoria          String  @db.VarChar(100)
+  preco              Decimal @db.Decimal(10, 2)
+  quantidade_estoque Int     @default(0)
+
+  // Relacionamentos inversos do Prisma
+  producoes         Producao[]
+  itens_pedido      Item_Pedido[]
+  produto_materiais Produto_Material[]
+
+  @@map("produtos")
+}
+
+model Funcionario {
+  id_funcionario Int    @id @default(autoincrement())
+  nome           String @db.VarChar(150)
+  cargo          String @db.VarChar(100)
+
+  producoes Producao[]
+
+  @@map("funcionario")
+}
+
+model Fornecedor {
+  id_fornecedor Int     @id @default(autoincrement())
+  nome_empresa  String  @db.VarChar(150)
+  contato_nome  String  @db.VarChar(150)
+  telefone      String? @db.VarChar(20)
+
+  materiais Material[]
+
+  @@map("fornecedor")
+}
+
+model Cliente {
+  id_cliente Int     @id @default(autoincrement())
+  nome       String  @db.VarChar(150)
+  contato    String? @db.VarChar(150)
+
+  pedidos Pedido[]
+
+  @@map("cliente")
+}
+
+model Material {
+  id_material           Int    @id @default(autoincrement())
+  nome                  String @db.VarChar(150)
+  quantidade_disponivel Int    @default(0)
+  unidade_medida        String @db.VarChar(20)
+
+  id_fornecedor Int
+  fornecedor    Fornecedor @relation(fields: [id_fornecedor], references: [id_fornecedor])
+
+  produto_materiais Produto_Material[]
+  movimentacoes     Movimentacao_Material[]
+
+  @@map("material")
+}
+
+model Producao {
+  id_producao          Int      @id @default(autoincrement())
+  data_fabricacao      DateTime @db.Date
+  quantidade_fabricada Int
+  lote                 String   @db.VarChar(50)
+  validade             DateTime @db.Date
+
+  id_produto Int
+  produto    Produto @relation(fields: [id_produto], references: [id_produto])
+
+  id_funcionario Int
+  funcionario    Funcionario @relation(fields: [id_funcionario], references: [id_funcionario])
+
+  @@map("producao")
+}
+
+model Pedido {
+  id_pedido        Int      @id @default(autoincrement())
+  data_hora        DateTime @default(now()) @db.Timestamp()
+  valor_total      Decimal  @db.Decimal(10, 2)
+  status_pagamento String   @db.VarChar(50)
+
+  id_cliente Int
+  cliente    Cliente @relation(fields: [id_cliente], references: [id_cliente])
+
+  itens_pedido Item_Pedido[]
+
+  @@map("pedido")
+}
+
+model Produto_Material {
+  quantidade_necessaria Decimal @db.Decimal(10, 3)
+
+  id_produto Int
+  produto    Produto @relation(fields: [id_produto], references: [id_produto], onDelete: Cascade)
+
+  id_material Int
+  material    Material @relation(fields: [id_material], references: [id_material], onDelete: Cascade)
+
+  @@id([id_produto, id_material])
+  @@map("produto_material")
+}
+
+model Item_Pedido {
+  quantidade      Int
+  preco_praticado Decimal @db.Decimal(10, 2)
+
+  id_pedido Int
+  pedido    Pedido @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+
+  id_produto Int
+  produto    Produto @relation(fields: [id_produto], references: [id_produto], onDelete: Cascade)
+
+  @@id([id_pedido, id_produto])
+  @@map("item_pedido")
+}
+
+model Movimentacao_Material {
+  id_movimentacao   Int      @id @default(autoincrement())
+  tipo_movimentacao String   @db.VarChar(10)
+  quantidade        Int
+  data_hora         DateTime @default(now()) @db.Timestamp()
+  motivo            String?  @db.VarChar(255)
+
+  id_material Int
+  material    Material @relation(fields: [id_material], references: [id_material])
+
+  @@map("movimentacao_material")
 }
