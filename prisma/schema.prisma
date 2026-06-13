@@ -38,8 +38,8 @@ model Funcionario {
 
 model Fornecedor {
   id_fornecedor Int     @id @default(autoincrement())
-  nome_empresa  String  @db.VarChar(150)
-  contato_nome  String  @db.VarChar(150)
+  nome_empresa  String  @db.VarChar(150) //tim tld /.....
+  contato_nome  String  @db.VarChar(150) // tim 
   telefone      String? @db.VarChar(20)
 
   materiais Material[]
