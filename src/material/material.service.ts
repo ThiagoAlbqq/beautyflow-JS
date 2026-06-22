@@ -1,7 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateMaterialDto } from './dto/create-material.dto';
 import { UpdateMaterialDto } from './dto/update-material.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class MaterialService {
@@ -22,8 +23,8 @@ export class MaterialService {
     try {
       return await this.prisma.material.findMany();
     } catch (error) {
-      console.error('Erro ao listar materials:', error);
-      throw new InternalServerErrorException('Não foi possível listar os materials.');
+      console.error('Erro ao listar materiais:', error);
+      throw new InternalServerErrorException('Não foi possível listar os materiais.');
     }
   }
 
@@ -33,7 +34,7 @@ export class MaterialService {
         where: { id_material: id }
       });
       if (!material) {
-        throw new NotFoundException(`O material com ID ${id} não encontrado.`);
+        throw new NotFoundException(`O material com ID ${id} não foi encontrado.`);
       }
 
       return material;
@@ -67,6 +68,11 @@ export class MaterialService {
         where: { id_material: id }
       });
     } catch (error) {
+      // Impede a deleção se houver histórico de movimentação no estoque
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2003') {
+        throw new BadRequestException('Não é possível deletar este material pois existem registros de movimentação de estoque atrelados a ele.');
+      }
+
       console.error(`Erro ao deletar material ${id}:`, error);
       throw new InternalServerErrorException('Não foi possível deletar o material.');
     }

@@ -1,7 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ClienteService {
@@ -67,6 +68,10 @@ export class ClienteService {
         where: { id_cliente: id }
       });
     } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2003') {
+        throw new BadRequestException('Não é possível deletar este cliente pois ele possui pedidos registrados.');
+      }
+
       console.error(`Erro ao deletar cliente ${id}:`, error);
       throw new InternalServerErrorException('Não foi possível deletar o cliente.');
     }

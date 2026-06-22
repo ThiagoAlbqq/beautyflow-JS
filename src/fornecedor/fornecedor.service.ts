@@ -1,7 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateFornecedorDto } from './dto/create-fornecedor.dto';
 import { UpdateFornecedorDto } from './dto/update-fornecedor.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class FornecedorService {
@@ -33,7 +34,7 @@ export class FornecedorService {
         where: { id_fornecedor: id }
       });
       if (!fornecedor) {
-        throw new NotFoundException(`fornecedor com ID ${id} não encontrado.`);
+        throw new NotFoundException(`Fornecedor com ID ${id} não encontrado.`);
       }
       return fornecedor;
     } catch (error) {
@@ -66,6 +67,10 @@ export class FornecedorService {
         where: { id_fornecedor: id }
       });
     } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2003') {
+        throw new BadRequestException('Não é possível deletar este fornecedor pois ele possui materiais vinculados no sistema.');
+      }
+
       console.error(`Erro ao deletar fornecedor ${id}:`, error);
       throw new InternalServerErrorException('Não foi possível deletar o fornecedor.');
     }

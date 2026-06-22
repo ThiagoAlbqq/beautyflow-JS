@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BeautyFlow - Produtos (CRUD Completo)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Patrick Hand', cursive;
+      background-color: #f3eee6;
+      color: #1a1a1a;
+      letter-spacing: 0.5px;
+      background-image: radial-gradient(#d1cbbd 2px, transparent 2px);
+      background-size: 30px 30px;
+      overflow-x: hidden;
+    }
+
+    .sketch-box {
+      border: 2px solid #1a1a1a;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      background-color: #fffdf9;
+    }
+
+    .sketch-input {
+      border: 2px solid #1a1a1a;
+      border-radius: 15px 225px 15px 255px/255px 15px 225px 15px;
+      background-color: transparent;
+    }
+
+    .sketch-shadow {
+      box-shadow: 5px 5px 0px 0px rgba(0, 0, 0, 0.85);
+    }
+
+    .sketch-shadow-blue {
+      box-shadow: 4px 4px 0px 0px #1d4ed8;
+      border-color: #1d4ed8;
+    }
+
+    .sketch-button {
+      transition: all 0.1s ease;
+      cursor: pointer;
+    }
+
+    .sketch-button:active {
+      box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+      transform: translate(5px, 5px);
+    }
+
+    .washi-tape {
+      position: absolute;
+      width: 120px;
+      height: 25px;
+      background-color: rgba(255, 255, 200, 0.4);
+      border-left: 2px dashed rgba(0, 0, 0, 0.1);
+      border-right: 2px dashed rgba(0, 0, 0, 0.1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-2deg);
+      z-index: 10;
+    }
+
+    .washi-tape.alt {
+      transform: translateX(-50%) rotate(3deg);
+      background-color: rgba(220, 240, 255, 0.5);
+    }
+
+    .washi-tape.pink {
+      background-color: rgba(255, 200, 220, 0.5);
+    }
+
+    .custom-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #1a1a1a;
+      border-radius: 10px;
+    }
+
+    #modal-container {
+      transition: visibility 0.3s;
+    }
+
+    #modal-backdrop {
+      transition: opacity 0.3s ease;
+    }
+
+    #modal-paper {
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-hidden {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .modal-hidden #modal-backdrop {
+      opacity: 0;
+    }
+
+    .modal-hidden #modal-paper {
+      opacity: 0;
+      transform: scale(0.9) translateY(40px) rotate(-5deg);
+    }
+
+    .modal-visible {
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .modal-visible #modal-backdrop {
+      opacity: 1;
+    }
+
+    .modal-visible #modal-paper {
+      opacity: 1;
+      transform: scale(1) translateY(0) rotate(1deg);
+    }
+
+    .pen-ink {
+      color: #1d4ed8;
+    }
+
+    .marker-highlight {
+      background: linear-gradient(104deg, rgba(254, 240, 138, 0) 0.9%, rgba(254, 240, 138, 1) 2.4%, rgba(254, 240, 138, 0.5) 5.8%, rgba(254, 240, 138, 0.1) 93%, rgba(254, 240, 138, 0.7) 96%, rgba(254, 240, 138, 0) 98%), linear-gradient(183deg, rgba(254, 240, 138, 0) 0%, rgba(254, 240, 138, 0.3) 7.9%, rgba(254, 240, 138, 0) 15%);
+      padding: 0 4px;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tab-btn.active {
+      background-color: #1a1a1a;
+      color: white;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <div class="max-w-6xl w-full flex flex-col md:flex-row gap-8 relative z-0">
+
+    <nav class="flex flex-col gap-3 w-full md:w-48 shrink-0">
+      <div class="mb-6 px-2 transform -rotate-2">
+        <span
+          class="font-bold text-3xl uppercase tracking-widest pen-ink underline decoration-wavy decoration-2">BeautyFlow</span>
+      </div>
+      <a href="#"
+        class="flex items-center gap-3 px-4 py-3 sketch-box sketch-shadow font-bold text-lg transform rotate-1"><i
+          class="fa-solid fa-box w-5 text-center"></i> Produtos</a>
+      <a href="relatorios.html"
+        class="flex items-center gap-3 px-4 py-2 text-gray-600 hover:text-black transition-colors text-lg">
+        <i class="fa-solid fa-chart-bar w-5 text-center"></i> Relatorios
+      </a>
+    </nav>
+
+    <main class="flex-1 flex flex-col relative mt-4 md:mt-0">
+
+      <div class="flex gap-4 mb-2 ml-4 relative z-10">
+        <button onclick="switchTab('formulario')" id="tab-formulario"
+          class="tab-btn active sketch-box px-6 py-2 font-bold text-lg transition-all"><i
+            class="fa-solid fa-pen-nib"></i> Rascunho / Formulário</button>
+        <button onclick="switchTab('catalogo')" id="tab-catalogo"
+          class="tab-btn sketch-box px-6 py-2 font-bold text-lg transition-all bg-[#fffdf9]"><i
+            class="fa-solid fa-book-open"></i> Catálogo do Banco</button>
+      </div>
+
+      <div class="sketch-box sketch-shadow flex-1 flex flex-col relative overflow-hidden bg-[#fffdf9]">
+        <div class="washi-tape"></div>
+
+        <div id="view-formulario" class="tab-content active flex-col xl:flex-row h-full w-full">
+          <div class="p-8 flex-1 border-b-2 xl:border-b-0 xl:border-r-2 border-black border-dashed flex flex-col">
+            <div class="flex justify-between items-center mb-8">
+              <h1 class="text-3xl font-bold"><span class="marker-highlight" id="titulo-form">Cadastrar Novo
+                  Produto</span></h1>
+              <button onclick="limparFormulario()" class="text-red-500 hover:text-red-700 font-bold"
+                title="Limpar formulário"><i class="fa-solid fa-eraser"></i> Limpar</button>
+            </div>
+
+            <div class="space-y-6 flex-1 text-lg">
+              <input type="hidden" id="input-id">
+              <div>
+                <label class="block font-bold mb-1">Nome:</label>
+                <input type="text" id="input-nome" placeholder="Ex: Sérum Facial"
+                  class="w-full sketch-input px-4 py-2 focus:outline-none focus:bg-yellow-50 transition-colors">
+              </div>
+
+              <div class="grid grid-cols-2 gap-6">
+                <div>
+                  <label class="block font-bold mb-1">Categoria:</label>
+                  <input type="hidden" id="input-categoria" value="">
+                  <div class="relative" id="cat-select-wrapper">
+                    <div id="cat-select-trigger"
+                      class="w-full sketch-input bg-transparent px-4 py-2 text-lg flex justify-between items-center cursor-pointer hover:bg-yellow-50 transition-colors">
+                      <span id="cat-select-text" class="text-gray-500">Selecionar...</span>
+                      <i class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-200"
+                        id="cat-select-arrow"></i>
+                    </div>
+                    <ul id="cat-select-menu"
+                      class="absolute z-50 left-0 right-0 mt-2 bg-[#fffdf9] sketch-box sketch-shadow hidden p-2 transform -rotate-1">
+                      <li
+                        class="cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                        data-value="SKINCARE">Skincare</li>
+                      <li
+                        class="cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                        data-value="MAQUIAGEM">Maquiagem</li>
+                      <li
+                        class="cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                        data-value="CAPILAR">Capilar</li>
+                      <li
+                        class="cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                        data-value="CORPORAL">Corporal</li>
+                      <li class="cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg"
+                        data-value="PERFUMARIA">Perfumaria</li>
+                    </ul>
+                  </div>
+                </div>
+                <div>
+                  <label class="block font-bold mb-1">Preço (R$):</label>
+                  <input type="number" id="input-preco" placeholder="0.00"
+                    class="w-full sketch-input px-4 py-2 focus:outline-none focus:bg-yellow-50">
+                </div>
+              </div>
+
+              <div
+                class="sketch-input border-dashed p-6 text-center mt-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                onclick="toggleModal(true)">
+                <i class="fa-solid fa-scroll text-4xl text-gray-400 mb-3 transform -rotate-12"></i>
+                <p class="font-bold text-xl mb-1">Receita do Produto</p>
+                <p class="text-gray-500 mb-4" id="resumo-receita">0 componentes adicionados.</p>
+                <button type="button"
+                  class="bg-white sketch-box px-6 py-2 font-bold sketch-shadow sketch-button text-lg flex items-center gap-2">
+                  <i class="fa-solid fa-pen pen-ink"></i> Editar Fórmula
+                </button>
+              </div>
+
+              <div class="pt-6 flex gap-3 mt-auto">
+                <button id="btn-salvar"
+                  class="flex-1 py-3 bg-black text-white font-bold sketch-box sketch-shadow sketch-button text-xl flex justify-center items-center gap-2">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> <span>Salvar no Banco</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-8 w-full xl:w-80 bg-[#fbf8f1] flex flex-col justify-start items-start relative overflow-hidden">
+            <div
+              class="absolute -right-6 -top-6 w-24 h-24 border-4 border-red-500 rounded-full flex items-center justify-center transform rotate-12 opacity-20">
+              <span id="carimbo-draft"
+                class="text-red-500 font-bold text-xl uppercase tracking-widest border-t-2 border-b-2 border-red-500">Draft</span>
+            </div>
+
+            <span
+              class="inline-block px-3 py-1 sketch-box text-sm mb-4 font-bold uppercase tracking-widest transform -rotate-2"
+              id="preview-categoria">Sem Categoria</span>
+            <h2 class="text-4xl font-bold leading-tight mb-8 pen-ink decoration-underline underline-offset-4"
+              id="preview-nome">Novo Produto</h2>
+
+            <div class="w-full border-b-2 border-black border-dashed pb-4 mb-6 flex justify-between items-end">
+              <span class="font-bold text-gray-500 text-lg">Valor Final:</span>
+              <span class="text-3xl font-bold">R$ <span id="preview-preco">0.00</span></span>
+            </div>
+
+            <div class="w-full flex-1 overflow-hidden flex flex-col">
+              <span class="font-bold text-xl mb-3 block border-b-2 border-black pb-1">Ingredientes:</span>
+              <ul id="lista-preview"
+                class="space-y-2 text-lg text-gray-800 list-disc list-inside overflow-y-auto custom-scroll pr-2 max-h-48">
+                <li id="empty-state-preview" class="text-gray-400 italic list-none">Sem componentes.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div id="view-catalogo" class="tab-content flex-col p-8 h-full w-full">
+          <div class="flex justify-between items-center mb-6 border-b-2 border-black border-dashed pb-4">
+            <h1 class="text-3xl font-bold"><span class="marker-highlight">Catálogo do Banco de Dados</span></h1>
+            <button onclick="carregarCatalogo()" class="sketch-button font-bold text-gray-500 hover:text-black"><i
+                class="fa-solid fa-rotate-right"></i> Atualizar</button>
+          </div>
+
+          <div id="grid-catalogo"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto custom-scroll pr-2 pb-4 flex-1">
+            <div class="col-span-full text-center py-12 text-gray-500 text-xl font-bold italic">
+              <i class="fa-solid fa-spinner fa-spin mb-2 text-3xl"></i><br>Buscando produtos no arquivo...
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center modal-hidden">
+    <div id="modal-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="toggleModal(false)"></div>
+
+    <div id="modal-paper"
+      class="sketch-box sketch-shadow bg-[#fffdf9] max-w-lg w-full p-8 relative mx-4 transform rotate-1">
+      <div class="washi-tape alt"></div>
+      <div class="flex justify-between items-center mb-6 mt-4 border-b-2 border-black border-dashed pb-4">
+        <h2 class="text-3xl font-bold flex items-center gap-3"><i class="fa-solid fa-flask pen-ink"></i> Laboratório
+        </h2>
+        <button onclick="toggleModal(false)" class="text-3xl font-bold text-gray-400 hover:text-black"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 mb-6 bg-gray-50 p-4 sketch-input border-dashed">
+        <div class="relative flex-1" id="custom-select-wrapper">
+          <div id="custom-select-trigger"
+            class="w-full sketch-input bg-white px-4 py-2 text-lg flex justify-between items-center cursor-pointer hover:bg-yellow-50 transition-colors">
+            <span id="custom-select-text" class="text-gray-500">Procurar Material...</span>
+            <i class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-200"
+              id="custom-select-arrow"></i>
+          </div>
+          <ul id="custom-select-menu"
+            class="absolute z-50 left-0 right-0 mt-2 bg-[#fffdf9] sketch-box sketch-shadow hidden max-h-48 overflow-y-auto custom-scroll p-2 transform rotate-1">
+            <li class="px-3 py-2 text-gray-400 italic">Buscando estoques...</li>
+          </ul>
+        </div>
+        <div class="flex gap-2">
+          <input type="number" id="input-mat-qtd" placeholder="Qtd"
+            class="w-24 sketch-input bg-white px-3 py-2 text-lg focus:outline-none text-center">
+          <button type="button" id="btn-add-mat"
+            class="bg-black text-white px-5 font-bold hover:bg-gray-800 sketch-box sketch-button text-xl">+</button>
+        </div>
+      </div>
+
+      <div class="bg-white sketch-input border-dashed p-4 h-64 overflow-y-auto custom-scroll mb-6">
+        <ul id="lista-modal" class="space-y-3">
+          <li id="empty-state-modal" class="text-center text-gray-400 italic py-12 text-lg">Fórmula vazia.</li>
+        </ul>
+      </div>
+
+      <button onclick="toggleModal(false)"
+        class="w-full py-4 bg-white sketch-box sketch-shadow sketch-button font-bold text-xl flex justify-center items-center gap-2">
+        <i class="fa-solid fa-check pen-ink"></i> Salvar Fórmula na Prancheta
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const API_PRODUTOS_URL = 'http://localhost:3333/produtos';
+    const API_MATERIAIS_URL = 'http://localhost:3333/material';
+
+    let materiaisAdicionados = [];
+    let materialSelecionadoAtual = '';
+    let listaDeProdutosCacheados = [];
+
+    function toNum(v) { return parseFloat(v) || 0; }
+
+    window.switchTab = function (tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'bg-[#1a1a1a]', 'text-white');
+        btn.classList.add('bg-[#fffdf9]', 'text-black');
+      });
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      if (tabName === 'formulario') {
+        const btn = document.getElementById('tab-formulario');
+        btn.classList.add('active', 'bg-[#1a1a1a]', 'text-white');
+        btn.classList.remove('bg-[#fffdf9]', 'text-black');
+        document.getElementById('view-formulario').classList.add('active');
+      } else {
+        const btn = document.getElementById('tab-catalogo');
+        btn.classList.add('active', 'bg-[#1a1a1a]', 'text-white');
+        btn.classList.remove('bg-[#fffdf9]', 'text-black');
+        document.getElementById('view-catalogo').classList.add('active');
+        carregarCatalogo();
+      }
+    }
+
+    document.getElementById('input-nome').addEventListener('input', e =>
+      document.getElementById('preview-nome').textContent = e.target.value || 'Novo Produto');
+
+
+    document.getElementById('input-preco').addEventListener('input', e => {
+      const val = toNum(e.target.value);
+      document.getElementById('preview-preco').textContent = val.toFixed(2);
+    });
+
+    window.toggleModal = function (open) {
+      const mc = document.getElementById('modal-container');
+      mc.classList.toggle('modal-hidden', !open);
+      mc.classList.toggle('modal-visible', open);
+    }
+
+    const trigger = document.getElementById('custom-select-trigger');
+    const menu = document.getElementById('custom-select-menu');
+    const arrow = document.getElementById('custom-select-arrow');
+
+    trigger.addEventListener('click', e => {
+      e.stopPropagation();
+      menu.classList.toggle('hidden');
+      arrow.classList.toggle('rotate-180');
+    });
+
+    document.addEventListener('click', e => {
+      if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.add('hidden');
+        arrow.classList.remove('rotate-180');
+      }
+    });
+
+    const catTrigger = document.getElementById('cat-select-trigger');
+    const catMenu = document.getElementById('cat-select-menu');
+    const catArrow = document.getElementById('cat-select-arrow');
+
+    catTrigger.addEventListener('click', e => {
+      e.stopPropagation();
+      catMenu.classList.toggle('hidden');
+      catArrow.classList.toggle('rotate-180');
+    });
+
+    document.addEventListener('click', e => {
+      if (!catTrigger.contains(e.target) && !catMenu.contains(e.target)) {
+        catMenu.classList.add('hidden');
+        catArrow.classList.remove('rotate-180');
+      }
+    });
+
+    document.querySelectorAll('.cat-option').forEach(li => {
+      li.addEventListener('click', () => {
+        const value = li.getAttribute('data-value');
+        const label = li.textContent;
+        document.getElementById('input-categoria').value = value;
+        document.getElementById('cat-select-text').textContent = label;
+        document.getElementById('cat-select-text').className = 'font-bold';
+        document.getElementById('preview-categoria').textContent = label;
+        catMenu.classList.add('hidden');
+        catArrow.classList.remove('rotate-180');
+      });
+    });
+
+    window.renderizarMateriais = function () {
+      const listaModal = document.getElementById('lista-modal');
+      const listaPreview = document.getElementById('lista-preview');
+      const resumo = document.getElementById('resumo-receita');
+
+      if (materiaisAdicionados.length === 0) {
+        resumo.textContent = '0 componentes adicionados.';
+        resumo.className = 'text-gray-500 mb-4';
+        listaModal.innerHTML = '<li class="text-center text-gray-400 italic py-12 text-lg">F\u00f3rmula vazia.</li>';
+        listaPreview.innerHTML = '<li class="text-gray-400 italic list-none">Sem componentes.</li>';
+        return;
+      }
+
+      resumo.textContent = `${materiaisAdicionados.length} componente(s) na receita!`;
+      resumo.className = 'font-bold pen-ink mb-4 marker-highlight';
+      listaModal.innerHTML = '';
+      listaPreview.innerHTML = '';
+
+      materiaisAdicionados.forEach((mat, index) => {
+        const qtd = toNum(mat.qtd);
+
+        const liModal = document.createElement('li');
+        liModal.className = 'flex justify-between items-center bg-white sketch-input border-dashed px-4 py-3 text-lg';
+        liModal.innerHTML = `
+          <span class="font-bold"><i class="fa-solid fa-vial text-gray-400 mr-2"></i> ${mat.nome}</span>
+          <div class="flex items-center gap-4">
+            <span class="font-bold text-xl sketch-box px-3 py-1 bg-yellow-50">
+              ${qtd} <span class="text-sm font-normal">${mat.unidade}</span>
+            </span>
+            <button type="button" onclick="removerMaterial(${index})"
+              class="text-red-500 hover:text-red-700 text-2xl transform hover:scale-110 transition-transform">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>`;
+        listaModal.appendChild(liModal);
+
+        const liPreview = document.createElement('li');
+        liPreview.innerHTML = `<span class="font-bold">${mat.nome}</span> <span class="text-gray-600">(${qtd} ${mat.unidade})</span>`;
+        listaPreview.appendChild(liPreview);
+      });
+    }
+
+    document.getElementById('btn-add-mat').addEventListener('click', () => {
+      const qtd = toNum(document.getElementById('input-mat-qtd').value);
+      if (!materialSelecionadoAtual || qtd <= 0) {
+        alert('Selecione um material e informe uma quantidade maior que zero.');
+        return;
+      }
+
+      const [id, unidade, nome] = materialSelecionadoAtual.split('|');
+      const idx = materiaisAdicionados.findIndex(m => m.id == id);
+
+      if (idx >= 0) {
+        materiaisAdicionados[idx].qtd = toNum(materiaisAdicionados[idx].qtd) + qtd;
+      } else {
+        materiaisAdicionados.push({ id, nome, unidade, qtd });
+      }
+
+      materialSelecionadoAtual = '';
+      document.getElementById('custom-select-text').textContent = 'Procurar Material...';
+      document.getElementById('custom-select-text').className = '';
+      document.getElementById('input-mat-qtd').value = '';
+      renderizarMateriais();
+    });
+
+    window.removerMaterial = function (index) {
+      materiaisAdicionados.splice(index, 1);
+      renderizarMateriais();
+    }
+
+    window.limparFormulario = function () {
+      document.getElementById('input-id').value = '';
+      document.getElementById('input-nome').value = '';
+      document.getElementById('input-categoria').value = '';
+      document.getElementById('cat-select-text').textContent = 'Selecionar...';
+      document.getElementById('cat-select-text').className = 'text-gray-500';
+      document.getElementById('input-preco').value = '';
+
+      materiaisAdicionados = [];
+      renderizarMateriais();
+
+      document.getElementById('preview-nome').textContent = 'Novo Produto';
+      document.getElementById('preview-categoria').textContent = 'Sem Categoria';
+      document.getElementById('preview-preco').textContent = '0.00';
+      document.getElementById('titulo-form').textContent = 'Cadastrar Novo Produto';
+      document.getElementById('carimbo-draft').textContent = 'Draft';
+      document.getElementById('carimbo-draft').className =
+        'text-red-500 font-bold text-xl uppercase tracking-widest border-t-2 border-b-2 border-red-500';
+
+      const btn = document.getElementById('btn-salvar');
+      btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Salvar no Banco</span>';
+      btn.classList.remove('bg-blue-600');
+      btn.classList.add('bg-black');
+    }
+
+    async function carregarDropdownMateriais() {
+      const menuMateriais = document.getElementById('custom-select-menu');
+      try {
+        const res = await fetch(API_MATERIAIS_URL);
+        if (!res.ok) throw new Error();
+        const materiais = await res.json();
+
+        menuMateriais.innerHTML = '';
+        if (materiais.length === 0) {
+          menuMateriais.innerHTML = '<li class="px-3 py-2 text-gray-500 italic">Sem materiais cadastrados.</li>';
+          return;
+        }
+
+        materiais.forEach(mat => {
+          const id = mat.id_material ?? mat.id;
+          const uni = mat.unidade_medida ?? mat.unidade ?? 'un';
+
+          const li = document.createElement('li');
+          li.className = 'px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed flex items-center gap-2';
+          li.setAttribute('data-value', `${id}|${uni}|${mat.nome}`);
+          li.innerHTML = `<i class="fa-solid fa-vial text-gray-400 text-sm"></i> ${mat.nome} <span class="text-gray-500 text-sm">(${uni})</span>`;
+
+          li.addEventListener('click', () => {
+            materialSelecionadoAtual = li.getAttribute('data-value');
+            const [, , nomeMat] = materialSelecionadoAtual.split('|');
+            document.getElementById('custom-select-text').textContent = nomeMat;
+            document.getElementById('custom-select-text').className = 'pen-ink font-bold';
+            menuMateriais.classList.add('hidden');
+            arrow.classList.remove('rotate-180');
+          });
+
+          menuMateriais.appendChild(li);
+        });
+      } catch {
+        menuMateriais.innerHTML = '<li class="px-3 py-2 text-red-500 italic">Erro ao carregar materiais.</li>';
+      }
+    }
+
+    document.getElementById('btn-salvar').addEventListener('click', async () => {
+      const idProduto = document.getElementById('input-id').value;
+      const nome = document.getElementById('input-nome').value.trim();
+      const categoria = document.getElementById('input-categoria').value;
+      const preco = toNum(document.getElementById('input-preco').value);
+
+      if (!nome || !categoria || preco <= 0) {
+        alert('Preencha Nome, Categoria e um Pre\u00e7o v\u00e1lido.');
+        return;
+      }
+
+      const payload = {
+        nome,
+        categoria,
+        preco,
+        ...(materiaisAdicionados.length > 0 && {
+          materiais: materiaisAdicionados.map(m => ({
+            id_material: parseInt(m.id),
+            quantidade_necessaria: toNum(m.qtd)
+          }))
+        })
+      };
+
+      const btn = document.getElementById('btn-salvar');
+      const isUpdating = idProduto !== '';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Escrevendo...';
+      btn.disabled = true;
+
+      let sucesso = false;
+      try {
+        const res = await fetch(
+          isUpdating ? `${API_PRODUTOS_URL}/${idProduto}` : API_PRODUTOS_URL,
+          {
+            method: isUpdating ? 'PATCH' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }
+        );
+        if (res.ok) {
+          sucesso = true;
+        } else {
+          const err = await res.json().catch(() => ({}));
+          const msg = Array.isArray(err.message) ? err.message.join('\n') : (err.message || 'Dados inv\u00e1lidos.');
+          alert(`Erro: ${msg}`);
+        }
+      } catch {
+        alert('Falha na comunica\u00e7\u00e3o. O servidor NestJS est\u00e1 rodando?');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = isUpdating
+          ? '<i class="fa-solid fa-arrows-rotate"></i> <span>Atualizar Banco</span>'
+          : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Salvar no Banco</span>';
+      }
+
+      if (sucesso) {
+        alert(`Produto ${isUpdating ? 'atualizado' : 'cadastrado'} com sucesso!`);
+        limparFormulario();
+      }
+    });
+
+    window.carregarCatalogo = async function () {
+      const grid = document.getElementById('grid-catalogo');
+      grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500 font-bold"><i class="fa-solid fa-spinner fa-spin text-3xl"></i></div>';
+
+      try {
+        const res = await fetch(API_PRODUTOS_URL);
+        if (!res.ok) throw new Error();
+        const produtos = await res.json();
+
+        listaDeProdutosCacheados = produtos;
+        grid.innerHTML = '';
+
+        if (produtos.length === 0) {
+          grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500 text-xl font-bold">Nenhum produto cadastrado ainda.</div>';
+          return;
+        }
+
+        produtos.forEach(p => {
+          const id = p.id_produto ?? p.id;
+          const preco = toNum(p.preco);
+          const mats = p.produto_materiais ?? p.materiais ?? p.receita ?? [];
+
+          const rotation = Math.random() > 0.5 ? 'rotate-1' : '-rotate-1';
+          const tapeCor = Math.random() > 0.5 ? 'alt' : 'pink';
+
+          const card = document.createElement('div');
+          card.className = `sketch-box p-6 bg-yellow-50 relative transform ${rotation} hover:rotate-0 hover:z-20 transition-all flex flex-col`;
+          card.innerHTML = `
+            <div class="washi-tape ${tapeCor} w-20 -top-4"></div>
+            <div class="flex-1">
+              <span class="text-xs font-bold uppercase tracking-widest text-gray-500 border-b border-gray-400 border-dashed pb-1 block mb-2">
+                ${p.categoria || 'Geral'}
+              </span>
+              <h3 class="font-bold text-2xl leading-tight mb-2">${p.nome}</h3>
+              <p class="text-3xl font-bold pen-ink mt-2">R$ ${preco.toFixed(2).replace('.', ',')}</p>
+              <div class="mt-4 pt-4 border-t-2 border-black border-dashed">
+                <p class="text-sm text-gray-600 font-bold">
+                  <i class="fa-solid fa-vial"></i> ${mats.length} ingrediente(s)
+                </p>
+              </div>
+            </div>
+            <div class="flex justify-between items-center mt-6 gap-2">
+              <button onclick="editarProduto(${id})"
+                class="flex-1 sketch-box bg-white font-bold py-1 px-2 text-blue-600 hover:bg-blue-50 sketch-button">
+                <i class="fa-solid fa-pen"></i> Editar
+              </button>
+              <button onclick="deletarProduto(${id})"
+                class="sketch-box bg-white font-bold py-1 px-3 text-red-500 hover:bg-red-50 sketch-button">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>`;
+          grid.appendChild(card);
+        });
+      } catch {
+        grid.innerHTML = '<div class="col-span-full text-center py-12 text-red-500 font-bold">Falha ao buscar produtos.</div>';
+      }
+    }
+
+    window.editarProduto = function (idBusca) {
+      const produto = listaDeProdutosCacheados.find(p => (p.id_produto ?? p.id) == idBusca);
+      if (!produto) return alert('Produto n\u00e3o encontrado.');
+
+      document.getElementById('input-id').value = idBusca;
+      document.getElementById('input-nome').value = produto.nome;
+      document.getElementById('input-categoria').value = produto.categoria;
+      document.getElementById('input-preco').value = toNum(produto.preco);
+      const catLabels = { SKINCARE: 'Skincare', MAQUIAGEM: 'Maquiagem', CAPILAR: 'Capilar', CORPORAL: 'Corporal', PERFUMARIA: 'Perfumaria' };
+      document.getElementById('cat-select-text').textContent = catLabels[produto.categoria] || produto.categoria;
+      document.getElementById('cat-select-text').className = 'font-bold';
+      document.getElementById('preview-categoria').textContent = catLabels[produto.categoria] || produto.categoria;
+
+      document.getElementById('input-nome').dispatchEvent(new Event('input'));
+      document.getElementById('input-preco').dispatchEvent(new Event('input'));
+
+      materiaisAdicionados = [];
+      const mats = produto.produto_materiais ?? produto.materiais ?? produto.receita ?? [];
+      mats.forEach(item => {
+        const matId = item.id_material ?? item.material?.id;
+        const matQtd = toNum(item.quantidade_necessaria ?? item.quantidade);
+        const matNome = item.material?.nome ?? `Material #${matId}`;
+        const matUnidade = item.material?.unidade_medida ?? item.material?.unidade ?? 'un';
+        materiaisAdicionados.push({ id: matId, nome: matNome, unidade: matUnidade, qtd: matQtd });
+      });
+      renderizarMateriais();
+
+      document.getElementById('titulo-form').textContent = 'Editando Produto';
+      document.getElementById('carimbo-draft').textContent = 'Edit';
+      document.getElementById('carimbo-draft').className =
+        'text-blue-600 font-bold text-xl uppercase tracking-widest border-t-2 border-b-2 border-blue-600';
+
+      const btn = document.getElementById('btn-salvar');
+      btn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> <span>Atualizar Banco</span>';
+      btn.classList.remove('bg-black');
+      btn.classList.add('bg-blue-600');
+
+      switchTab('formulario');
+    }
+
+    window.deletarProduto = async function (id) {
+      if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+      try {
+        const res = await fetch(`${API_PRODUTOS_URL}/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          carregarCatalogo();
+        } else {
+          alert('Erro ao deletar o produto.');
+        }
+      } catch {
+        alert('Falha de conex\u00e3o.');
+      }
+    }
+
+    carregarDropdownMateriais();
+    carregarCatalogo();
+
+  </script>
+</body>
+
+</html>

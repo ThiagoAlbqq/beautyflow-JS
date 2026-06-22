@@ -11,12 +11,56 @@ datasource db {
   provider = "postgresql"
 }
 
+enum CategoriaProduto {
+  SKINCARE
+  MAQUIAGEM
+  CAPILAR
+  CORPORAL
+  PERFUMARIA
+}
+
+enum CargoFuncionario {
+  OPERADOR_PRODUCAO
+  QUIMICO_RESPONSAVEL
+  ESTOQUISTA
+  VENDEDOR
+  GERENTE
+}
+
+enum StatusPagamento {
+  PENDENTE
+  PAGO
+  CANCELADO
+  ESTORNADO
+}
+
+enum TipoMovimentacao {
+  ENTRADA
+  SAIDA
+}
+
+enum UnidadeMedida {
+  UNIDADE
+  KG
+  G
+  L
+  ML
+  M
+  CM
+  M2
+  M3
+  CAIXA
+  PACOTE
+  ROLO
+  LATA
+}
+
 model Produto {
-  id_produto         Int     @id @default(autoincrement())
-  nome               String  @db.VarChar(150)
-  categoria          String  @db.VarChar(100)
-  preco              Decimal @db.Decimal(10, 2)
-  quantidade_estoque Int     @default(0)
+  id_produto         Int              @id @default(autoincrement())
+  nome               String           @db.VarChar(150)
+  categoria          CategoriaProduto
+  preco              Decimal          @db.Decimal(10, 2)
+  quantidade_estoque Int              @default(0)
 
   // Relacionamentos inversos do Prisma
   producoes         Producao[]
@@ -27,9 +71,9 @@ model Produto {
 }
 
 model Funcionario {
-  id_funcionario Int    @id @default(autoincrement())
-  nome           String @db.VarChar(150)
-  cargo          String @db.VarChar(100)
+  id_funcionario Int              @id @default(autoincrement())
+  nome           String           @db.VarChar(150)
+  cargo          CargoFuncionario
 
   producoes Producao[]
 
@@ -38,8 +82,8 @@ model Funcionario {
 
 model Fornecedor {
   id_fornecedor Int     @id @default(autoincrement())
-  nome_empresa  String  @db.VarChar(150) //tim tld /.....
-  contato_nome  String  @db.VarChar(150) // tim 
+  nome_empresa  String  @db.VarChar(150)
+  contato_nome  String  @db.VarChar(150)
   telefone      String? @db.VarChar(20)
 
   materiais Material[]
@@ -58,10 +102,10 @@ model Cliente {
 }
 
 model Material {
-  id_material           Int    @id @default(autoincrement())
-  nome                  String @db.VarChar(150)
-  quantidade_disponivel Int    @default(0)
-  unidade_medida        String @db.VarChar(20)
+  id_material           Int           @id @default(autoincrement())
+  nome                  String        @db.VarChar(150)
+  quantidade_disponivel Int           @default(0)
+  unidade_medida        UnidadeMedida
 
   id_fornecedor Int
   fornecedor    Fornecedor @relation(fields: [id_fornecedor], references: [id_fornecedor])
@@ -89,10 +133,10 @@ model Producao {
 }
 
 model Pedido {
-  id_pedido        Int      @id @default(autoincrement())
-  data_hora        DateTime @default(now()) @db.Timestamp()
-  valor_total      Decimal  @db.Decimal(10, 2)
-  status_pagamento String   @db.VarChar(50)
+  id_pedido        Int             @id @default(autoincrement())
+  data_hora        DateTime        @default(now()) @db.Timestamp()
+  valor_total      Decimal         @db.Decimal(10, 2)
+  status_pagamento StatusPagamento
 
   id_cliente Int
   cliente    Cliente @relation(fields: [id_cliente], references: [id_cliente])
@@ -130,11 +174,11 @@ model Item_Pedido {
 }
 
 model Movimentacao_Material {
-  id_movimentacao   Int      @id @default(autoincrement())
-  tipo_movimentacao String   @db.VarChar(10)
+  id_movimentacao   Int              @id @default(autoincrement())
+  tipo_movimentacao TipoMovimentacao
   quantidade        Int
-  data_hora         DateTime @default(now()) @db.Timestamp()
-  motivo            String?  @db.VarChar(255)
+  data_hora         DateTime         @default(now()) @db.Timestamp()
+  motivo            String?          @db.VarChar(255)
 
   id_material Int
   material    Material @relation(fields: [id_material], references: [id_material])

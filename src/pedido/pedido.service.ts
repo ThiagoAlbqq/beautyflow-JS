@@ -9,8 +9,22 @@ export class PedidoService {
 
   async create(createPedidoDto: CreatePedidoDto) {
     try {
+      const { itens, ...dadosPedido } = createPedidoDto;
+
       return await this.prisma.pedido.create({
-        data: createPedidoDto,
+        data: {
+          ...dadosPedido,
+          itens_pedido: {
+            create: itens.map((item) => ({
+              id_produto: item.id_produto,
+              quantidade: item.quantidade,
+              preco_praticado: item.preco_praticado,
+            })),
+          },
+        },
+        include: {
+          itens_pedido: true,
+        },
       });
     } catch (error) {
       console.error('Erro ao criar pedido:', error);
@@ -20,7 +34,11 @@ export class PedidoService {
 
   async findAll() {
     try {
-      return await this.prisma.pedido.findMany();
+      return await this.prisma.pedido.findMany({
+        include: {
+          itens_pedido: true,
+        },
+      });
     } catch (error) {
       console.error('Erro ao listar pedidos:', error);
       throw new InternalServerErrorException('Não foi possível listar os pedidos.');
@@ -30,7 +48,10 @@ export class PedidoService {
   async findOne(id: number) {
     try {
       const pedido = await this.prisma.pedido.findUnique({
-        where: { id_pedido: id }
+        where: { id_pedido: id },
+        include: {
+          itens_pedido: true,
+        },
       });
       if (!pedido) {
         throw new NotFoundException(`Pedido com ID ${id} não encontrado.`);

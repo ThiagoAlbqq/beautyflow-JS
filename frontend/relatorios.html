@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BeautyFlow - Relatórios</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Patrick Hand', cursive;
+      background-color: #f3eee6;
+      color: #1a1a1a;
+      letter-spacing: 0.5px;
+      background-image: radial-gradient(#d1cbbd 2px, transparent 2px);
+      background-size: 30px 30px;
+      overflow-x: hidden;
+    }
+
+    .sketch-box {
+      border: 2px solid #1a1a1a;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      background-color: #fffdf9;
+    }
+
+    .sketch-input {
+      border: 2px solid #1a1a1a;
+      border-radius: 15px 225px 15px 255px/255px 15px 225px 15px;
+      background-color: transparent;
+    }
+
+    .sketch-shadow {
+      box-shadow: 5px 5px 0px 0px rgba(0, 0, 0, 0.85);
+    }
+
+    .sketch-button {
+      transition: all 0.1s ease;
+      cursor: pointer;
+    }
+
+    .sketch-button:active {
+      box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+      transform: translate(5px, 5px);
+    }
+
+    .washi-tape {
+      position: absolute;
+      width: 120px;
+      height: 25px;
+      background-color: rgba(255, 255, 200, 0.4);
+      border-left: 2px dashed rgba(0, 0, 0, 0.1);
+      border-right: 2px dashed rgba(0, 0, 0, 0.1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-2deg);
+      z-index: 10;
+    }
+
+    .washi-tape.alt {
+      transform: translateX(-50%) rotate(3deg);
+      background-color: rgba(220, 240, 255, 0.5);
+    }
+
+    .washi-tape.pink {
+      background-color: rgba(255, 200, 220, 0.5);
+    }
+
+    .custom-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #1a1a1a;
+      border-radius: 10px;
+    }
+
+    .pen-ink {
+      color: #1d4ed8;
+    }
+
+    .marker-highlight {
+      background: linear-gradient(104deg, rgba(254, 240, 138, 0) 0.9%, rgba(254, 240, 138, 1) 2.4%, rgba(254, 240, 138, 0.5) 5.8%, rgba(254, 240, 138, 0.1) 93%, rgba(254, 240, 138, 0.7) 96%, rgba(254, 240, 138, 0) 98%), linear-gradient(183deg, rgba(254, 240, 138, 0) 0%, rgba(254, 240, 138, 0.3) 7.9%, rgba(254, 240, 138, 0) 15%);
+      padding: 0 4px;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tab-btn.active {
+      background-color: #1a1a1a;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .sketch-table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+    }
+
+    .sketch-table th {
+      background-color: #1a1a1a;
+      color: white;
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sketch-table th:first-child {
+      border-radius: 12px 0 0 0;
+    }
+
+    .sketch-table th:last-child {
+      border-radius: 0 12px 0 0;
+    }
+
+    .sketch-table td {
+      padding: 10px 16px;
+      border-bottom: 2px dashed #d1cbbd;
+      font-size: 1rem;
+      vertical-align: middle;
+    }
+
+    .sketch-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .sketch-table tr:hover td {
+      background-color: #fef9e7;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      border: 2px solid currentColor;
+    }
+
+    .badge-pago {
+      color: #15803d;
+      background: #dcfce7;
+    }
+
+    .badge-pendente {
+      color: #b45309;
+      background: #fef3c7;
+    }
+
+    .badge-cancelado {
+      color: #b91c1c;
+      background: #fee2e2;
+    }
+
+    .badge-estornado {
+      color: #6b21a8;
+      background: #f3e8ff;
+    }
+
+    .metric-card {
+      flex: 1;
+      min-width: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      gap: 6px;
+      text-align: center;
+      position: relative;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <div class="max-w-6xl w-full flex flex-col md:flex-row gap-8 relative z-0">
+
+    <nav class="flex flex-col gap-3 w-full md:w-48 shrink-0">
+      <div class="mb-6 px-2 transform -rotate-2">
+        <span
+          class="font-bold text-3xl uppercase tracking-widest pen-ink underline decoration-wavy decoration-2">BeautyFlow</span>
+      </div>
+      <a href="home.html"
+        class="flex items-center gap-3 px-4 py-2 text-gray-600 hover:text-black transition-colors text-lg">
+        <i class="fa-solid fa-box w-5 text-center"></i> Produtos
+      </a>
+      <a href="#"
+        class="flex items-center gap-3 px-4 py-3 sketch-box sketch-shadow font-bold text-lg transform rotate-1">
+        <i class="fa-solid fa-chart-bar w-5 text-center"></i> Relatórios
+      </a>
+    </nav>
+
+    <main class="flex-1 flex flex-col relative mt-4 md:mt-0">
+
+      <div class="flex gap-4 mb-2 ml-4 relative z-10 flex-wrap">
+        <button onclick="switchTab('produtos')" id="tab-produtos"
+          class="tab-btn active sketch-box px-5 py-2 font-bold text-lg transition-all">
+          <i class="fa-solid fa-box"></i> Produtos
+        </button>
+        <button onclick="switchTab('metricas')" id="tab-metricas"
+          class="tab-btn sketch-box px-5 py-2 font-bold text-lg transition-all bg-[#fffdf9]">
+          <i class="fa-solid fa-chart-simple"></i> Métricas
+        </button>
+        <button onclick="switchTab('pedidos')" id="tab-pedidos"
+          class="tab-btn sketch-box px-5 py-2 font-bold text-lg transition-all bg-[#fffdf9]">
+          <i class="fa-solid fa-receipt"></i> Pedidos & Clientes
+        </button>
+      </div>
+
+      <div class="sketch-box sketch-shadow flex-1 flex flex-col relative overflow-hidden bg-[#fffdf9]"
+        style="min-height: 520px;">
+        <div class="washi-tape"></div>
+
+        <div id="view-produtos" class="tab-content active flex-col h-full w-full p-8">
+
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b-2 border-black border-dashed pb-4">
+            <h1 class="text-3xl font-bold"><span class="marker-highlight">Relatório de Produtos</span></h1>
+            <button onclick="buscarProdutos()"
+              class="sketch-button sketch-box px-5 py-2 font-bold flex items-center gap-2 sketch-shadow">
+              <i class="fa-solid fa-magnifying-glass pen-ink"></i> Buscar
+            </button>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4 mb-6">
+
+            <div class="flex-1">
+              <label class="block font-bold mb-1 text-sm uppercase tracking-wide">Nome do produto:</label>
+              <input type="text" id="filtro-termo" placeholder="Ex: Sérum..."
+                class="w-full sketch-input px-4 py-2 focus:outline-none focus:bg-yellow-50 transition-colors text-lg"
+                onkeydown="if(event.key==='Enter') buscarProdutos()">
+            </div>
+
+            <div class="w-full sm:w-52">
+              <label class="block font-bold mb-1 text-sm uppercase tracking-wide">Categoria:</label>
+              <input type="hidden" id="filtro-categoria" value="">
+              <div class="relative">
+                <div id="filtro-cat-trigger"
+                  class="w-full sketch-input bg-transparent px-4 py-2 text-lg flex justify-between items-center cursor-pointer hover:bg-yellow-50 transition-colors">
+                  <span id="filtro-cat-text" class="text-gray-500">Todas</span>
+                  <i class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-200"
+                    id="filtro-cat-arrow"></i>
+                </div>
+                <ul id="filtro-cat-menu"
+                  class="absolute z-50 left-0 right-0 mt-2 bg-[#fffdf9] sketch-box sketch-shadow hidden p-2 transform -rotate-1">
+                  <li
+                    class="rel-cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                    data-value="">Todas</li>
+                  <li
+                    class="rel-cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                    data-value="SKINCARE">Skincare</li>
+                  <li
+                    class="rel-cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                    data-value="MAQUIAGEM">Maquiagem</li>
+                  <li
+                    class="rel-cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                    data-value="CAPILAR">Capilar</li>
+                  <li
+                    class="rel-cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                    data-value="CORPORAL">Corporal</li>
+                  <li class="rel-cat-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg"
+                    data-value="PERFUMARIA">Perfumaria</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-auto custom-scroll">
+            <table class="sketch-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nome</th>
+                  <th>Categoria</th>
+                  <th>Preço</th>
+                  <th>Estoque</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-produtos">
+                <tr>
+                  <td colspan="5" class="text-center py-10 text-gray-400 italic">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p id="contagem-produtos" class="text-sm text-gray-500 mt-3 text-right font-bold"></p>
+        </div>
+
+        <div id="view-metricas" class="tab-content flex-col h-full w-full p-8">
+
+          <div class="flex justify-between items-center mb-6 border-b-2 border-black border-dashed pb-4">
+            <h1 class="text-3xl font-bold"><span class="marker-highlight">Métricas de Produtos</span></h1>
+            <button onclick="buscarMetricas()" class="sketch-button font-bold text-gray-500 hover:text-black">
+              <i class="fa-solid fa-rotate-right"></i> Atualizar
+            </button>
+          </div>
+
+          <div id="cards-metricas" class="flex flex-wrap gap-6 justify-center items-stretch mt-4">
+            <div class="col-span-full text-center py-12 text-gray-400 italic w-full">
+              <i class="fa-solid fa-spinner fa-spin text-3xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <div id="view-pedidos" class="tab-content flex-col h-full w-full p-8">
+
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b-2 border-black border-dashed pb-4">
+            <h1 class="text-3xl font-bold"><span class="marker-highlight">Pedidos & Clientes</span></h1>
+            <button onclick="buscarPedidos()"
+              class="sketch-button sketch-box px-5 py-2 font-bold flex items-center gap-2 sketch-shadow">
+              <i class="fa-solid fa-magnifying-glass pen-ink"></i> Buscar
+            </button>
+          </div>
+
+          <div class="flex gap-4 mb-6">
+            <div class="w-full sm:w-52">
+              <label class="block font-bold mb-1 text-sm uppercase tracking-wide">Status:</label>
+              <input type="hidden" id="filtro-status" value="">
+              <div class="relative">
+                <div id="filtro-status-trigger"
+                  class="w-full sketch-input bg-transparent px-4 py-2 text-lg flex justify-between items-center cursor-pointer hover:bg-yellow-50 transition-colors">
+                  <span id="filtro-status-text" class="text-gray-500">Todos</span>
+                  <i class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-200"
+                    id="filtro-status-arrow"></i>
+                </div>
+                <ul id="filtro-status-menu"
+                  class="absolute z-50 left-0 right-0 mt-2 bg-[#fffdf9] sketch-box sketch-shadow hidden p-2 transform rotate-1">
+                  <li
+                    class="status-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                    data-value="">Todos</li>
+                  <li
+                    class="status-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                    data-value="PAGO">Pago</li>
+                  <li
+                    class="status-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                    data-value="PENDENTE">Pendente</li>
+                  <li
+                    class="status-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg border-b-2 border-black border-dashed"
+                    data-value="CANCELADO">Cancelado</li>
+                  <li class="status-option px-3 py-2 hover:bg-yellow-200 cursor-pointer rounded text-lg"
+                    data-value="ESTORNADO">Estornado</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-auto custom-scroll">
+            <table class="sketch-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cliente</th>
+                  <th>Data</th>
+                  <th>Valor Total</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-pedidos">
+                <tr>
+                  <td colspan="5" class="text-center py-10 text-gray-400 italic">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p id="contagem-pedidos" class="text-sm text-gray-500 mt-3 text-right font-bold"></p>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3333/relatorio';
+
+    // =========================================================
+    // TABS
+    // =========================================================
+    const TABS = ['produtos', 'metricas', 'pedidos'];
+
+    window.switchTab = function (name) {
+      TABS.forEach(t => {
+        document.getElementById(`tab-${t}`).classList.remove('active', 'bg-[#1a1a1a]', 'text-white');
+        document.getElementById(`tab-${t}`).classList.add('bg-[#fffdf9]', 'text-black');
+        document.getElementById(`view-${t}`).classList.remove('active');
+      });
+      document.getElementById(`tab-${name}`).classList.add('active', 'bg-[#1a1a1a]', 'text-white');
+      document.getElementById(`tab-${name}`).classList.remove('bg-[#fffdf9]', 'text-black');
+      document.getElementById(`view-${name}`).classList.add('active');
+
+      if (name === 'metricas') buscarMetricas();
+      if (name === 'pedidos') buscarPedidos();
+    }
+
+    // =========================================================
+    // DROPDOWN GENÉRICO
+    // =========================================================
+    function criarDropdown(triggerId, menuId, arrowId, hiddenId, textId) {
+      const trigger = document.getElementById(triggerId);
+      const menu = document.getElementById(menuId);
+      const arrow = document.getElementById(arrowId);
+
+      trigger.addEventListener('click', e => {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+        arrow.classList.toggle('rotate-180');
+      });
+
+      document.addEventListener('click', e => {
+        if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+          menu.classList.add('hidden');
+          arrow.classList.remove('rotate-180');
+        }
+      });
+
+      menu.querySelectorAll('li').forEach(li => {
+        li.addEventListener('click', () => {
+          document.getElementById(hiddenId).value = li.dataset.value;
+          document.getElementById(textId).textContent = li.textContent;
+          document.getElementById(textId).className = li.dataset.value ? 'font-bold' : 'text-gray-500';
+          menu.classList.add('hidden');
+          arrow.classList.remove('rotate-180');
+        });
+      });
+    }
+
+    criarDropdown('filtro-cat-trigger', 'filtro-cat-menu', 'filtro-cat-arrow', 'filtro-categoria', 'filtro-cat-text');
+    criarDropdown('filtro-status-trigger', 'filtro-status-menu', 'filtro-status-arrow', 'filtro-status', 'filtro-status-text');
+
+    // =========================================================
+    // HELPERS
+    // =========================================================
+    function toNum(v) { return parseFloat(v) || 0; }
+
+    function emptyRow(cols, msg) {
+      return `<tr><td colspan="${cols}" class="text-center py-10 text-gray-400 italic text-lg">${msg}</td></tr>`;
+    }
+
+    function errRow(cols) {
+      return emptyRow(cols, '<i class="fa-solid fa-triangle-exclamation text-red-400 mr-2"></i> Falha ao buscar dados. O servidor está rodando?');
+    }
+
+    function badgeStatus(status) {
+      const map = {
+        PAGO: ['badge-pago', 'Pago'],
+        PENDENTE: ['badge-pendente', 'Pendente'],
+        CANCELADO: ['badge-cancelado', 'Cancelado'],
+        ESTORNADO: ['badge-estornado', 'Estornado'],
+      };
+      const [cls, label] = map[status] || ['', status];
+      return `<span class="badge ${cls}">${label}</span>`;
+    }
+
+    function formatData(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    const catLabels = {
+      SKINCARE: 'Skincare', MAQUIAGEM: 'Maquiagem', CAPILAR: 'Capilar',
+      CORPORAL: 'Corporal', PERFUMARIA: 'Perfumaria'
+    };
+
+    // =========================================================
+    // RELATÓRIO PRODUTOS
+    // =========================================================
+    window.buscarProdutos = async function () {
+      const tbody = document.getElementById('tbody-produtos');
+      const contagem = document.getElementById('contagem-produtos');
+      tbody.innerHTML = emptyRow(5, '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando...');
+      contagem.textContent = '';
+
+      const categoria = document.getElementById('filtro-categoria').value;
+      const termoBusca = document.getElementById('filtro-termo').value.trim();
+
+      const params = new URLSearchParams();
+      if (categoria) params.set('categoria', categoria);
+      if (termoBusca) params.set('termoBusca', termoBusca);
+
+      try {
+        const res = await fetch(`${API}/produtos?${params}`);
+        if (!res.ok) throw new Error();
+        const produtos = await res.json();
+
+        if (produtos.length === 0) {
+          tbody.innerHTML = emptyRow(5, 'Nenhum produto encontrado para os filtros selecionados.');
+          return;
+        }
+
+        tbody.innerHTML = produtos.map(p => `
+          <tr>
+            <td class="text-gray-400 font-bold">${p.id_produto ?? p.id}</td>
+            <td class="font-bold">${p.nome}</td>
+            <td><span class="badge" style="color:#1d4ed8;background:#eff6ff;border-color:#1d4ed8">${catLabels[p.categoria] ?? p.categoria}</span></td>
+            <td class="font-bold pen-ink">R$ ${toNum(p.preco).toFixed(2).replace('.', ',')}</td>
+            <td>${p.quantidade_estoque ?? 0} un</td>
+          </tr>`).join('');
+
+        contagem.textContent = `${produtos.length} produto(s) encontrado(s)`;
+      } catch {
+        tbody.innerHTML = errRow(5);
+      }
+    }
+
+    // =========================================================
+    // MÉTRICAS
+    // =========================================================
+    window.buscarMetricas = async function () {
+      const container = document.getElementById('cards-metricas');
+      container.innerHTML = '<div class="text-gray-400 italic w-full text-center py-12"><i class="fa-solid fa-spinner fa-spin text-3xl"></i></div>';
+
+      try {
+        const res = await fetch(`${API}/metricas`);
+        if (!res.ok) throw new Error();
+        const m = await res.json();
+
+        const total = m._count?.id_produto ?? 0;
+        const maior = toNum(m._max?.preco);
+        const menor = toNum(m._min?.preco);
+
+        const cards = [
+          { icon: 'fa-boxes-stacked', label: 'Total de Produtos', value: total, suffix: 'produtos', color: '#1d4ed8' },
+          { icon: 'fa-arrow-trend-up', label: 'Maior Preço', value: `R$ ${maior.toFixed(2).replace('.', ',')}`, suffix: '', color: '#15803d' },
+          { icon: 'fa-arrow-trend-down', label: 'Menor Preço', value: `R$ ${menor.toFixed(2).replace('.', ',')}`, suffix: '', color: '#b91c1c' },
+          { icon: 'fa-scale-balanced', label: 'Variação', value: `R$ ${(maior - menor).toFixed(2).replace('.', ',')}`, suffix: 'de diferença', color: '#b45309' },
+        ];
+
+        container.innerHTML = cards.map((c, i) => {
+          const rotations = ['rotate-1', '-rotate-1', 'rotate-2', '-rotate-2'];
+          return `
+          <div class="metric-card sketch-box sketch-shadow transform ${rotations[i]} hover:rotate-0 transition-all" style="min-width:180px; max-width: 220px;">
+            <div class="washi-tape ${i % 2 === 0 ? 'alt' : 'pink'} w-16 -top-3"></div>
+            <i class="fa-solid ${c.icon} text-3xl mb-2" style="color:${c.color}"></i>
+            <span class="text-sm uppercase tracking-widest text-gray-500 font-bold">${c.label}</span>
+            <span class="text-4xl font-bold mt-1" style="color:${c.color}">${c.value}</span>
+            ${c.suffix ? `<span class="text-sm text-gray-400">${c.suffix}</span>` : ''}
+          </div>`;
+        }).join('');
+
+      } catch {
+        container.innerHTML = '<div class="text-red-400 italic w-full text-center py-12"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Falha ao buscar métricas.</div>';
+      }
+    }
+
+    // =========================================================
+    // PEDIDOS & CLIENTES
+    // =========================================================
+    window.buscarPedidos = async function () {
+      const tbody = document.getElementById('tbody-pedidos');
+      const contagem = document.getElementById('contagem-pedidos');
+      tbody.innerHTML = emptyRow(5, '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando...');
+      contagem.textContent = '';
+
+      const status = document.getElementById('filtro-status').value;
+      const params = new URLSearchParams();
+      if (status) params.set('status', status);
+
+      try {
+        const res = await fetch(`${API}/pedidos-clientes?${params}`);
+        console.log(res)
+        if (!res.ok) throw new Error();
+        const pedidos = await res.json();
+
+        if (pedidos.length === 0) {
+          tbody.innerHTML = emptyRow(5, 'Nenhum pedido encontrado para o filtro selecionado.');
+          return;
+        }
+
+        tbody.innerHTML = pedidos.map(p => `
+          <tr>
+            <td class="text-gray-400 font-bold">${p.id_pedido ?? p.id}</td>
+            <td class="font-bold">${p.cliente?.nome ?? '—'}<br><span class="text-sm text-gray-400 font-normal">${p.cliente?.contato ?? ''}</span></td>
+            <td class="text-sm">${formatData(p.data_hora)}</td>
+            <td class="font-bold pen-ink">R$ ${toNum(p.valor_total).toFixed(2).replace('.', ',')}</td>
+            <td>${badgeStatus(p.status_pagamento)}</td>
+          </tr>`).join('');
+
+        contagem.textContent = `${pedidos.length} pedido(s) encontrado(s)`;
+      } catch {
+        tbody.innerHTML = errRow(5);
+      }
+    }
+
+    // =========================================================
+    // INIT
+    // =========================================================
+    buscarProdutos();
+  </script>
+</body>
+
+</html>
