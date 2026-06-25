@@ -6,8 +6,6 @@ import { CategoriaProduto, StatusPagamento } from '@prisma/client';
 export class RelatorioController {
   constructor(private readonly relatorioService: RelatorioService) { }
 
-  // Rota: GET /relatorio/produtos
-  // Exemplo de uso: /relatorio/produtos?categoria=Doces&termoBusca=Chocolate
   @Get('produtos')
   relatorioProdutos(
     @Query('categoria') categoria?: CategoriaProduto,
@@ -16,14 +14,11 @@ export class RelatorioController {
     return this.relatorioService.relatorioProdutos(categoria, termoBusca);
   }
 
-  // Rota: GET /relatorio/metricas
   @Get('metricas')
   relatorioMetricas() {
     return this.relatorioService.relatorioMetricas();
   }
 
-  // Rota: GET /relatorio/pedidos-clientes
-  // Exemplo de uso: /relatorio/pedidos-clientes?status=PAGO
   @Get('pedidos-clientes')
   relatorioPedidosClientes(
     @Query('status') status?: StatusPagamento,

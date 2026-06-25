@@ -403,9 +403,6 @@
   <script>
     const API = 'http://localhost:3333/relatorio';
 
-    // =========================================================
-    // TABS
-    // =========================================================
     const TABS = ['produtos', 'metricas', 'pedidos'];
 
     window.switchTab = function (name) {
@@ -422,9 +419,6 @@
       if (name === 'pedidos') buscarPedidos();
     }
 
-    // =========================================================
-    // DROPDOWN GENÉRICO
-    // =========================================================
     function criarDropdown(triggerId, menuId, arrowId, hiddenId, textId) {
       const trigger = document.getElementById(triggerId);
       const menu = document.getElementById(menuId);
@@ -457,9 +451,6 @@
     criarDropdown('filtro-cat-trigger', 'filtro-cat-menu', 'filtro-cat-arrow', 'filtro-categoria', 'filtro-cat-text');
     criarDropdown('filtro-status-trigger', 'filtro-status-menu', 'filtro-status-arrow', 'filtro-status', 'filtro-status-text');
 
-    // =========================================================
-    // HELPERS
-    // =========================================================
     function toNum(v) { return parseFloat(v) || 0; }
 
     function emptyRow(cols, msg) {
@@ -492,9 +483,6 @@
       CORPORAL: 'Corporal', PERFUMARIA: 'Perfumaria'
     };
 
-    // =========================================================
-    // RELATÓRIO PRODUTOS
-    // =========================================================
     window.buscarProdutos = async function () {
       const tbody = document.getElementById('tbody-produtos');
       const contagem = document.getElementById('contagem-produtos');
@@ -532,10 +520,6 @@
         tbody.innerHTML = errRow(5);
       }
     }
-
-    // =========================================================
-    // MÉTRICAS
-    // =========================================================
     window.buscarMetricas = async function () {
       const container = document.getElementById('cards-metricas');
       container.innerHTML = '<div class="text-gray-400 italic w-full text-center py-12"><i class="fa-solid fa-spinner fa-spin text-3xl"></i></div>';
@@ -572,10 +556,6 @@
         container.innerHTML = '<div class="text-red-400 italic w-full text-center py-12"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Falha ao buscar métricas.</div>';
       }
     }
-
-    // =========================================================
-    // PEDIDOS & CLIENTES
-    // =========================================================
     window.buscarPedidos = async function () {
       const tbody = document.getElementById('tbody-pedidos');
       const contagem = document.getElementById('contagem-pedidos');
@@ -611,10 +591,6 @@
         tbody.innerHTML = errRow(5);
       }
     }
-
-    // =========================================================
-    // INIT
-    // =========================================================
     buscarProdutos();
   </script>
 </body>

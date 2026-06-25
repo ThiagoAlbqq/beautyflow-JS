@@ -8,11 +8,10 @@ import { Prisma } from '@prisma/client';
 export class ProdutosService {
   constructor(private readonly prisma: PrismaService) { }
 
-  // include reutilizável — garante shape consistente em todos os métodos
   private readonly include = {
     produto_materiais: {
       include: {
-        material: true,   // nome, unidade_medida disponíveis no frontend
+        material: true,
       },
     },
   };
@@ -70,8 +69,6 @@ export class ProdutosService {
 
     try {
       return await this.prisma.$transaction(async (tx) => {
-        // Apaga os materiais antigos antes de recriar
-        // (sem isso, o create duplica ou bate em PK)
         if (materiais !== undefined) {
           await tx.produto_Material.deleteMany({
             where: { id_produto: id },
@@ -103,8 +100,6 @@ export class ProdutosService {
   async remove(id: number) {
     await this.findOne(id);
     try {
-      // Remove os materiais vinculados antes de deletar o produto
-      // (necessário se não tiver onDelete: Cascade no schema)
       await this.prisma.produto_Material.deleteMany({
         where: { id_produto: id },
       });

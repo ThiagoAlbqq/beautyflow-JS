@@ -68,7 +68,6 @@ export class MaterialService {
         where: { id_material: id }
       });
     } catch (error) {
-      // Impede a deleção se houver histórico de movimentação no estoque
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2003') {
         throw new BadRequestException('Não é possível deletar este material pois existem registros de movimentação de estoque atrelados a ele.');
       }

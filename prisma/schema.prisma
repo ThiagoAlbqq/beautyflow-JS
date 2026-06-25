@@ -4,7 +4,8 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -62,7 +63,6 @@ model Produto {
   preco              Decimal          @db.Decimal(10, 2)
   quantidade_estoque Int              @default(0)
 
-  // Relacionamentos inversos do Prisma
   producoes         Producao[]
   itens_pedido      Item_Pedido[]
   produto_materiais Produto_Material[]
